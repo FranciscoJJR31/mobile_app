@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:postgres/postgres.dart';
 
 void main() => runApp(const MyApp());
 
@@ -92,9 +93,25 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                     print(ordenController.text);
                     print(nameController.text);
                     print(passwordController.text);
+                    operation();
                   },
                 )),
           ],
         ));
+  }
+
+// uso de la funcion para conectarse a la DB
+  Future operation() async {
+    var connection = PostgreSQLConnection("10.0.0.85", 5432, "appdb",
+        username: "appuser", password: "strongpasswordapp", useSSL: false);
+    try {
+      await connection.open();
+      print("Connectada a la DB");
+      List<List<dynamic>> results =
+          await connection.query("select * from phonebook");
+      print(results[0][1]);
+    } catch (e) {
+      print("error al conectar en la DB");
+    }
   }
 }

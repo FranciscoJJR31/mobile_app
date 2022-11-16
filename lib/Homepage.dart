@@ -11,7 +11,7 @@ class HomePage extends StatelessWidget {
       title: 'Welcome to Flutter',
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Bienvenido Nuevamente'),
+          title: Text('Bienvenido ' + orden),
         ),
         body: Center(
           child: Text(orden, style: TextStyle(fontSize: 50)),

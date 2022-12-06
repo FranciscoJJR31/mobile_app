@@ -13,10 +13,10 @@ class HomePage extends StatelessWidget {
       title: 'Welcome to Flutter',
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Bienvenido ' + victima[0][1]),
+          title: Text('Bienvenido ' + victima[0][0]),
         ),
         body: Center(
-          child: Text(victima[0][0], style: TextStyle(fontSize: 50)),
+          child: Text(victima[0][1], style: TextStyle(fontSize: 50)),
         ),
       ),
     );

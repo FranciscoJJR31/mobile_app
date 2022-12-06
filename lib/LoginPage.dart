@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:mobile_app/Homepage.dart';
 import 'package:postgres/postgres.dart';
@@ -108,18 +110,19 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       List<List<dynamic>> results_victima = await connection
           .query("select * from victima where id_victima = '$id_victima'");
 
-      // String id_orden = ordenController.text;
-      // List<List<dynamic>> results_orden = await connection
-      //     .query("select * from orden where id_orden = '$id_orden'");
+      String id_orden = ordenController.text;
+      List<List<dynamic>> results_orden = await connection
+          .query("select * from orden where id_orden = '$id_orden'");
 
       String? id_app_flutter = await PlatformDeviceId.getDeviceId;
       List<List<dynamic>> caja_blanca = [];
       List<List<dynamic>> results_app = await connection.query(
           "select * from app_movil where id_app_movil = '$id_app_flutter'");
-      // print("select * from app_movi where id_app_movil = '$id_app_flutter'");
-      print(caja_blanca.toString());
+
+      print(results_orden[0][0].toString());
       if (results_victima[0][0] == cedulaController.text &&
-          results_victima[0][6] == passwordController.text) {
+          results_victima[0][6] == passwordController.text &&
+          results_orden[0][0] == ordenController.text) {
         //print('PASASTE a la SGT PAG');
         if (results_app.toString() == caja_blanca.toString()) {
           await connection.transaction((ctx) async {
@@ -128,7 +131,18 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 substitutionValues: {"a": "$id_app_flutter", "b": "v1.0"});
           });
         }
+        await connection.transaction((ctx) async {
+          await ctx.query(
+              "INSERT INTO ubicacion_victima (id_victima,id_app_movil,longitud,latitud) VALUES (@a,@b,@c,@d)",
+              substitutionValues: {
+                "a": cedulaController.text,
+                "b": "$id_app_flutter",
+                "c": "17.0000",
+                "d": "-19.000"
+              });
+        });
 
+        // ignore: use_build_context_synchronously
         Navigator.push(
           context,
           MaterialPageRoute(

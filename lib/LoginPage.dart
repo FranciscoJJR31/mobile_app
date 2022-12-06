@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/Homepage.dart';
 import 'package:postgres/postgres.dart';
+import 'package:platform_device_id/platform_device_id.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -28,7 +29,7 @@ class MyStatefulWidget extends StatefulWidget {
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   TextEditingController ordenController = TextEditingController();
-  TextEditingController nameController = TextEditingController();
+  TextEditingController cedulaController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   @override
@@ -57,7 +58,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
             Container(
               padding: const EdgeInsets.all(10),
               child: TextField(
-                controller: nameController,
+                controller: cedulaController,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: 'Cédula',
@@ -89,10 +90,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                 child: ElevatedButton(
                   child: const Text('Loguearse'),
                   onPressed: () {
-//                    print(ordenController.text);
-//                    print(nameController.text);
-//                    print(passwordController.text);
-                    operation();
+                    _operation();
                   },
                 )),
           ],
@@ -100,30 +98,51 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   }
 
 // uso de la funcion para conectarse a la DB
-  Future operation() async {
+  Future _operation() async {
     var connection = PostgreSQLConnection("10.0.0.85", 5432, "appdb",
         username: "appuser", password: "strongpasswordapp", useSSL: false);
     try {
       await connection.open();
       //print("Connectada a la DB");
-      List<List<dynamic>> results =
-          await connection.query("select * from phonebook");
-      print(results[0][1]);
-      if (results[0][1] == ordenController.text) {
+      String id_victima = cedulaController.text;
+      List<List<dynamic>> results_victima = await connection
+          .query("select * from victima where id_victima = '$id_victima'");
+
+      // String id_orden = ordenController.text;
+      // List<List<dynamic>> results_orden = await connection
+      //     .query("select * from orden where id_orden = '$id_orden'");
+
+      String? id_app_flutter = await PlatformDeviceId.getDeviceId;
+      List<List<dynamic>> caja_blanca = [];
+      List<List<dynamic>> results_app = await connection.query(
+          "select * from app_movil where id_app_movil = '$id_app_flutter'");
+      // print("select * from app_movi where id_app_movil = '$id_app_flutter'");
+      print(caja_blanca.toString());
+      if (results_victima[0][0] == cedulaController.text &&
+          results_victima[0][6] == passwordController.text) {
         //print('PASASTE a la SGT PAG');
+        if (results_app.toString() == caja_blanca.toString()) {
+          await connection.transaction((ctx) async {
+            await ctx.query(
+                "INSERT INTO app_movil (id_app_movil,v_software) VALUES (@a,@b)",
+                substitutionValues: {"a": "$id_app_flutter", "b": "v1.0"});
+          });
+        }
+
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => HomePage(
-              orden: results[0][1].toString(),
+              //orden: results[0][1].toString(),
+              victima: results_victima,
             ),
           ),
         );
       } else {
-        print('Tu la MACASTE VIEJITO');
+        print('Loggin failed');
       }
     } catch (e) {
-      print("error al conectar en la DB");
+      print("Loggin failed");
     }
   }
 }

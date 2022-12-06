@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
 //const HomePage({super.key});
-  String orden;
-  HomePage({super.key, required this.orden});
+  //String victima;
+  List<List<dynamic>> victima;
+  //String orden;
+  HomePage({super.key, required this.victima});
 
   @override
   Widget build(BuildContext context) {
@@ -11,10 +13,10 @@ class HomePage extends StatelessWidget {
       title: 'Welcome to Flutter',
       home: Scaffold(
         appBar: AppBar(
-          title: Text('Bienvenido ' + orden),
+          title: Text('Bienvenido ' + victima[0][1]),
         ),
         body: Center(
-          child: Text(orden, style: TextStyle(fontSize: 50)),
+          child: Text(victima[0][0], style: TextStyle(fontSize: 50)),
         ),
       ),
     );

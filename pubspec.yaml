@@ -30,6 +30,9 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   location: ^4.2.0
+  latlong2: ^0.8.1
+  flutter_map: ^3.0.0
+
   flutter:
     sdk: flutter
 

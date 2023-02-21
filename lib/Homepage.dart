@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget {
       home: Scaffold(
         drawer: NavDrawer(),
         appBar: AppBar(
-          title: Text('Bienvenido ' + victima[0][0]),
+          title: Text('Bienvenido ' + victima[0][1]),
         ),
         body: Center(
             child: FlutterMap(

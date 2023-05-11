@@ -15,6 +15,7 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: _title,
       home: Scaffold(
         appBar: AppBar(title: const Text(_title)),
@@ -131,8 +132,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
     try {
       _location();
       _locationData = await location.getLocation();
+
       await connection.open();
-      //print("Connectada a la DB");
+
       String id_victima = cedulaController.text;
       List<List<dynamic>> results_victima = await connection
           .query("select * from victima where id_victima = '$id_victima'");
@@ -145,8 +147,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       List<List<dynamic>> caja_blanca = [];
       List<List<dynamic>> results_app = await connection.query(
           "select * from app_movil where id_app_movil = '$id_app_flutter'");
-
-      print(results_orden[0][0].toString());
+      //print(new List.from(results_victima)..addAll(results_orden));
+      //print(results_orden[0][3].toString()); esto me da la distancia radio
       if (results_victima[0][0] == cedulaController.text &&
           results_victima[0][6] == passwordController.text &&
           results_orden[0][0] == ordenController.text) {
@@ -185,8 +187,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           context,
           MaterialPageRoute(
             builder: (context) => HomePage(
-              //orden: results[0][1].toString(),
-              victima: results_victima,
+              victima: new List.from(results_victima)..addAll(results_orden),
             ),
           ),
         );
@@ -194,7 +195,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         print('Loggin failed');
       }
     } catch (e) {
-      print("Loggin failed");
+      print("Loggin failed por el try");
     }
   }
 }

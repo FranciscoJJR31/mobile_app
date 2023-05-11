@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
@@ -5,24 +7,27 @@ import 'package:flutter_map/flutter_map.dart';
 import 'nav-drawer.dart';
 
 class HomePage extends StatelessWidget {
-  final circleMarkers = <CircleMarker>[
-    CircleMarker(
-        point: LatLng(19.221870, -70.514107),
-        color: Colors.blue.withOpacity(0.2),
-        borderStrokeWidth: 1,
-        useRadiusInMeter: true,
-        radius: 100 // 2000 meters | 2 km
-        ),
-  ];
+  List<List<dynamic>> victima;
+
+  HomePage({super.key, required this.victima});
+
 //const HomePage({super.key});
   //String victima;
-  List<List<dynamic>> victima;
-  //String orden;
-  HomePage({super.key, required this.victima});
 
   @override
   Widget build(BuildContext context) {
+    final circleMarkers = <CircleMarker>[
+      CircleMarker(
+          point: LatLng(19.221870, -70.514107),
+          color: Colors.blue.withOpacity(0.2),
+          borderStrokeWidth: 1,
+          useRadiusInMeter: true,
+          radius: double.parse(victima[1][3].toString()) // 2000 meters | 2 km
+          ),
+    ];
+
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Welcome to Flutter',
       home: Scaffold(
         drawer: NavDrawer(),
@@ -33,7 +38,7 @@ class HomePage extends StatelessWidget {
             child: FlutterMap(
           options: MapOptions(
             center: LatLng(19.221870, -70.514107),
-            zoom: 13,
+            zoom: 18,
           ),
           nonRotatedChildren: [
             AttributionWidget.defaultWidget(

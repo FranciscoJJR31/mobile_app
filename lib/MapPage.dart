@@ -2,9 +2,11 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:location/location.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:postgres/postgres.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'dart:math' show cos, sqrt, asin;
 
 import 'nav-drawer.dart';
 
@@ -20,7 +22,8 @@ class _MapPageState extends State<MapPage> {
   double Latagresor = 19.22182601;
   double lonvictima = -70.514254;
   double lonagresor = -70.514254;
-  double radius = 60;
+  double radius = 0;
+  double size_marker_agresor = 50;
 
 //const HomePage({super.key});
   @override
@@ -77,7 +80,7 @@ class _MapPageState extends State<MapPage> {
                   builder: (cxt) => Icon(
                     Icons.pin_drop,
                     color: Colors.green,
-                    size: 50,
+                    size: size_marker_agresor,
                   ),
                 )
               ],
@@ -93,6 +96,10 @@ class _MapPageState extends State<MapPage> {
     var connection = PostgreSQLConnection("10.0.0.99", 5432, "appdb",
         username: "appuser", password: "strongpasswordapp", useSSL: false);
     String? id_app_flutter = await PlatformDeviceId.getDeviceId;
+    Location location = new Location();
+    LocationData _locationData;
+    _locationData = await location.getLocation();
+
     await connection.open();
 
     Array = await connection.query(
@@ -107,19 +114,58 @@ class _MapPageState extends State<MapPage> {
     PosAgresor = await connection.query(
         "select * from ubicacion_agresor where id_agresor = '$id_agresor' order by id_ubicacion_agresor DESC LIMIT 1");
 
-    await connection.close();
-    //radius = double.parse(radio.toString());
+    radius = double.parse(radio.toString());
     Latvictima = double.parse(PosVictima[0][4].toString());
     Latagresor = double.parse(PosAgresor[0][3].toString());
     lonvictima = double.parse(PosVictima[0][3].toString());
     lonagresor = double.parse(PosAgresor[0][2].toString());
 
+    var dt = DateTime.now();
+    await connection.query(
+        "INSERT INTO ubicacion_victima (id_victima,id_app_movil,longitud,latitud,fecha,hora) VALUES (@a,@b,@c,@d,@e,@f)",
+        substitutionValues: {
+          "a": "$id_victima",
+          "b": "$id_app_flutter",
+          "c": _locationData.longitude.toString(),
+          "d": _locationData.latitude.toString(),
+          "e": dt.month.toString() +
+              '/' +
+              dt.day.toString() +
+              '/' +
+              dt.year.toString(),
+          "f": dt.hour.toString() +
+              ':' +
+              dt.minute.toString() +
+              ':' +
+              dt.second.toString()
+        });
+
+    await connection.close();
     //await Future.delayed(Duration(minutes: 1));
     Future.delayed(Duration(seconds: 1), () {
       // <-- Delay here
       setState(() {
         print(radius.toString());
+
+        if (calculateDistance(Latvictima, lonvictima, Latagresor, lonagresor) -
+                double.parse(radio.toString()) >
+            10) {
+          size_marker_agresor = 0;
+          print(calculateDistance(
+              Latvictima, lonvictima, Latagresor, lonagresor));
+        } else {
+          size_marker_agresor = 50;
+        }
       });
     });
+  }
+
+  double calculateDistance(lat1, lon1, lat2, lon2) {
+    var p = 0.017453292519943295;
+    var c = cos;
+    var a = 0.5 -
+        c((lat2 - lat1) * p) / 2 +
+        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
+    return 12742 * 1000 * asin(sqrt(a));
   }
 }

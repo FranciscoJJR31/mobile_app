@@ -43,6 +43,9 @@ dependencies:
   platform_device_id: ^1.0.1
   flutter_gen: ^5.1.0+1
   url_launcher: ^6.1.11
+  flutter_map_location_marker: ^5.3.0
+  fluttertoast: ^8.2.1
+  workmanager: ^0.5.1
 
 dev_dependencies:
   flutter_test:

@@ -1,11 +1,15 @@
 // ignore_for_file: avoid_print, unrelated_type_equality_checks
 
 import 'package:flutter/material.dart';
-import 'package:mobile_app/Homepage.dart';
+//import 'package:mobile_app/MapPage.dart';
 // ignore: depend_on_referenced_packages
 import 'package:postgres/postgres.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:location/location.dart';
+
+import 'nav-drawer.dart';
+
+var count = 0;
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -127,7 +131,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       //_locationData = await location.getLocation();
     }
 
-    var connection = PostgreSQLConnection("10.0.0.93", 5432, "appdb",
+    var connection = PostgreSQLConnection("10.0.0.99", 5432, "appdb",
         username: "appuser", password: "strongpasswordapp", useSSL: false);
     try {
       _location();
@@ -142,6 +146,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       String id_orden = ordenController.text;
       List<List<dynamic>> results_orden = await connection
           .query("select * from orden where id_orden = '$id_orden'");
+      List<List<dynamic>> results_ubicacion_victima = await connection.query(
+          "select * from ubicacion_victima where id_victima = '${results_orden[0][1]}' order by id_ubicacion_victima DESC LIMIT 1");
+      List<List<dynamic>> results_ubicacion_agresor = await connection.query(
+          "select * from ubicacion_agresor where id_agresor = '${results_orden[0][2]}' order by id_ubicacion_agresor DESC LIMIT 1");
 
       String? id_app_flutter = await PlatformDeviceId.getDeviceId;
       List<List<dynamic>> caja_blanca = [];
@@ -151,7 +159,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       //print(results_orden[0][3].toString()); esto me da la distancia radio
       if (results_victima[0][0] == cedulaController.text &&
           results_victima[0][6] == passwordController.text &&
-          results_orden[0][0] == ordenController.text) {
+          results_orden[0][0] == ordenController.text &&
+          results_victima[0][7] == 'true') {
         var dt = DateTime.now();
         //print('PASASTE a la SGT PAG');
         if (results_app.toString() == caja_blanca.toString()) {
@@ -186,16 +195,49 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => HomePage(
-              victima: new List.from(results_victima)..addAll(results_orden),
-            ),
+            builder: (context) => NavDrawer(),
           ),
         );
       } else {
-        print('Loggin failed');
+        count = count + 1;
+        if (count > 4) {
+          await connection.query(
+              "update victima set login='false' where id_victima = '$id_victima'");
+          _showAlertDialog();
+          await connection.close();
+        }
       }
     } catch (e) {
       print("Loggin failed por el try");
+      await connection.close();
     }
+  }
+
+  Future<void> _showAlertDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          // <-- SEE HERE
+          title: const Text('Usuario bloqueado'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('Haz excedido la cantidad de intentos permitidos'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

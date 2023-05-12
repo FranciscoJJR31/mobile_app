@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/informacionPage.dart';
 import 'package:mobile_app/main.dart';
 
-import 'Homepage.dart';
+import 'MapPage.dart';
 
 class NavDrawer extends StatelessWidget {
   @override
@@ -22,12 +23,18 @@ class NavDrawer extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.account_box),
             title: Text('Pagina de inicio'),
-            onTap: () => {},
+            onTap: () => {
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => informacionPage()))
+            },
           ),
           ListTile(
             leading: Icon(Icons.verified_user),
             title: Text('Mapa'),
-            onTap: () => {Navigator.of(context).pop()},
+            onTap: () => {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => MapPage()))
+            },
           ),
           ListTile(
             leading: Icon(Icons.exit_to_app),

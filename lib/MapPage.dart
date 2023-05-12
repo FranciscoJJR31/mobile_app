@@ -48,7 +48,6 @@ class _MapPageState extends State<MapPage> {
         body: Center(
             child: FlutterMap(
           options: MapOptions(
-            onPositionChanged: (position, hasGesture) => setState(() {}),
             center: LatLng(Latvictima, lonvictima),
             zoom: 18,
           ),

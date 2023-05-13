@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:postgres/postgres.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:location/location.dart';
-
+import 'package:mobile_app/local_notice_service.dart';
 import 'nav-drawer.dart';
 
 var count = 0;
@@ -100,6 +100,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   child: const Text('Loguearse'),
                   onPressed: () {
                     _operation();
+                    NotificationService()
+                        .showNotification(title: 'hola', body: 'klk');
                   },
                 )),
           ],

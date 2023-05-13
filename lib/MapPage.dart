@@ -3,9 +3,13 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
+import 'package:mobile_app/local_notice_service.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:postgres/postgres.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:mobile_app/local_notice_service.dart';
+
 import 'dart:math' show cos, sqrt, asin;
 
 import 'nav-drawer.dart';
@@ -145,7 +149,8 @@ class _MapPageState extends State<MapPage> {
     Future.delayed(Duration(seconds: 1), () {
       // <-- Delay here
       setState(() {
-        print(radius.toString());
+        //Recibimos el mensaje del backend
+        reciveMessage();
 
         if (calculateDistance(Latvictima, lonvictima, Latagresor, lonagresor) -
                 double.parse(radio.toString()) >
@@ -155,6 +160,10 @@ class _MapPageState extends State<MapPage> {
               Latvictima, lonvictima, Latagresor, lonagresor));
         } else {
           size_marker_agresor = 50;
+          WidgetsFlutterBinding.ensureInitialized();
+          NotificationService().initNotification();
+          NotificationService()
+              .showNotification(title: 'ALERTA!', body: 'Agresor cerca!');
         }
       });
     });
@@ -167,5 +176,26 @@ class _MapPageState extends State<MapPage> {
         c((lat2 - lat1) * p) / 2 +
         c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
     return 12742 * 1000 * asin(sqrt(a));
+  }
+
+  void reciveMessage() {
+    IOWebSocketChannel? channel;
+    // We use a try - catch statement, because the connection might fail.
+    try {
+      // Connect to our backend.
+      channel = IOWebSocketChannel.connect('ws://10.0.0.99:4000');
+      channel.stream.listen((event) async {
+        // Just making sure it is not empty
+        if (event!.isNotEmpty) {
+          print(event);
+
+          // Now only close the connection and we are done here!
+          channel!.sink.close();
+        }
+      });
+    } catch (e) {
+      // If there is any error that might be because you need to use another connection.
+      print("Error on connecting to websocket: " + e.toString());
+    }
   }
 }

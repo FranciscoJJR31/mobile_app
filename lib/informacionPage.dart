@@ -9,9 +9,11 @@ import 'nav-drawer.dart';
 // ignore: camel_case_types
 class informacionPage extends StatefulWidget {
   @override
+  // ignore: library_private_types_in_public_api
   _informacionPageState createState() => _informacionPageState();
 }
 
+// ignore: camel_case_types
 class _informacionPageState extends State<informacionPage> {
   @override
   Widget build(BuildContext context) {
@@ -19,9 +21,9 @@ class _informacionPageState extends State<informacionPage> {
       debugShowCheckedModeBanner: false,
       title: 'Welcome to Flutter',
       home: Scaffold(
-        drawer: NavDrawer(),
+        drawer: const NavDrawer(),
         appBar: AppBar(
-          title: Text('Mapa'),
+          title: const Text('Mapa'),
         ),
         body: Center(
           child: Scaffold(
@@ -29,11 +31,11 @@ class _informacionPageState extends State<informacionPage> {
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    CircleAvatar(
+                    const CircleAvatar(
                       radius: 70.0,
                       backgroundImage: AssetImage('assets/images/pgr.jpg'),
                     ),
-                    Center(
+                    const Center(
                       child: Text(
                         'Procuraduría General de la República Dominicana',
                         style: TextStyle(
@@ -44,7 +46,7 @@ class _informacionPageState extends State<informacionPage> {
                         ),
                       ),
                     ),
-                    Text(
+                    const Text(
                       'Linea de atención al cliente',
                       style: TextStyle(
                         fontFamily: 'Anton',
@@ -53,7 +55,7 @@ class _informacionPageState extends State<informacionPage> {
                         letterSpacing: 2.5,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20.0,
                       width: 150.0,
                       child: Divider(
@@ -62,15 +64,15 @@ class _informacionPageState extends State<informacionPage> {
                     ),
                     Card(
                       color: Colors.white,
-                      margin: EdgeInsets.symmetric(
+                      margin: const EdgeInsets.symmetric(
                           vertical: 10.0, horizontal: 25.0),
                       child: ListTile(
                         onTap: _launchURL,
-                        leading: Icon(
+                        leading: const Icon(
                           Icons.phone,
                           color: Colors.black,
                         ),
-                        title: Text(
+                        title: const Text(
                           '809-533-3522',
                           style: TextStyle(
                             color: Colors.deepPurpleAccent,
@@ -79,7 +81,7 @@ class _informacionPageState extends State<informacionPage> {
                         ),
                       ),
                     ),
-                    Text(
+                    const Text(
                       'Linea de emergencia',
                       style: TextStyle(
                         fontFamily: 'Anton',
@@ -88,7 +90,7 @@ class _informacionPageState extends State<informacionPage> {
                         letterSpacing: 2.5,
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20.0,
                       width: 150.0,
                       child: Divider(
@@ -97,15 +99,15 @@ class _informacionPageState extends State<informacionPage> {
                     ),
                     Card(
                       color: Colors.white,
-                      margin: EdgeInsets.symmetric(
+                      margin: const EdgeInsets.symmetric(
                           vertical: 10.0, horizontal: 25.0),
                       child: ListTile(
                         onTap: _launch911,
-                        leading: Icon(
+                        leading: const Icon(
                           Icons.phone,
                           color: Colors.black,
                         ),
-                        title: Text(
+                        title: const Text(
                           '911',
                           style: TextStyle(
                             color: Colors.deepPurpleAccent,

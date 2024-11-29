@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:postgres/postgres.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:location/location.dart';
-import 'package:mobile_app/local_notice_service.dart';
 import 'nav-drawer.dart';
 
 var count = 0;
@@ -100,8 +99,8 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   child: const Text('Loguearse'),
                   onPressed: () {
                     _operation();
-                    NotificationService()
-                        .showNotification(title: 'hola', body: 'klk');
+                    // NotificationService()
+                    //     .showNotification(title: 'hola', body: 'klk');
                   },
                 )),
           ],
@@ -133,43 +132,39 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
       //_locationData = await location.getLocation();
     }
 
-    var connection = PostgreSQLConnection("10.0.0.99", 5432, "appdb",
+    var connection = PostgreSQLConnection("worker.local.com", 5432, "appdb",
         username: "appuser", password: "strongpasswordapp", useSSL: false);
     try {
       _location();
+
       _locationData = await location.getLocation();
 
       await connection.open();
 
-      String id_victima = cedulaController.text;
-      List<List<dynamic>> results_victima = await connection
-          .query("select * from victima where id_victima = '$id_victima'");
+      String idVictima = cedulaController.text;
+      List<List<dynamic>> resultsVictima = await connection
+          .query("select * from victima where id_victima = '$idVictima'");
 
-      String id_orden = ordenController.text;
-      List<List<dynamic>> results_orden = await connection
-          .query("select * from orden where id_orden = '$id_orden'");
-      List<List<dynamic>> results_ubicacion_victima = await connection.query(
-          "select * from ubicacion_victima where id_victima = '${results_orden[0][1]}' order by id_ubicacion_victima DESC LIMIT 1");
-      List<List<dynamic>> results_ubicacion_agresor = await connection.query(
-          "select * from ubicacion_agresor where id_agresor = '${results_orden[0][2]}' order by id_ubicacion_agresor DESC LIMIT 1");
-
-      String? id_app_flutter = await PlatformDeviceId.getDeviceId;
-      List<List<dynamic>> caja_blanca = [];
-      List<List<dynamic>> results_app = await connection.query(
-          "select * from app_movil where id_app_movil = '$id_app_flutter'");
+      String idOrden = ordenController.text;
+      List<List<dynamic>> resultsOrden = await connection
+          .query("select * from orden where id_orden = '$idOrden'");
+      String? idAppFlutter = await PlatformDeviceId.getDeviceId;
+      List<List<dynamic>> cajaBlanca = [];
+      List<List<dynamic>> resultsApp = await connection.query(
+          "select * from app_movil where id_app_movil = '$idAppFlutter'");
       //print(new List.from(results_victima)..addAll(results_orden));
       //print(results_orden[0][3].toString()); esto me da la distancia radio
-      if (results_victima[0][0] == cedulaController.text &&
-          results_victima[0][6] == passwordController.text &&
-          results_orden[0][0] == ordenController.text &&
-          results_victima[0][7] == 'true') {
+      if (resultsVictima[0][0] == cedulaController.text &&
+          resultsVictima[0][6] == passwordController.text &&
+          resultsOrden[0][0] == ordenController.text &&
+          resultsVictima[0][7] == 'true') {
         var dt = DateTime.now();
         //print('PASASTE a la SGT PAG');
-        if (results_app.toString() == caja_blanca.toString()) {
+        if (resultsApp.toString() == cajaBlanca.toString()) {
           await connection.transaction((ctx) async {
             await ctx.query(
                 "INSERT INTO app_movil (id_app_movil,v_software) VALUES (@a,@b)",
-                substitutionValues: {"a": "$id_app_flutter", "b": "v1.0"});
+                substitutionValues: {"a": "$idAppFlutter", "b": "v1.0"});
           });
         }
         await connection.transaction((ctx) async {
@@ -177,19 +172,11 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               "INSERT INTO ubicacion_victima (id_victima,id_app_movil,longitud,latitud,fecha,hora) VALUES (@a,@b,@c,@d,@e,@f)",
               substitutionValues: {
                 "a": cedulaController.text,
-                "b": "$id_app_flutter",
+                "b": "$idAppFlutter",
                 "c": _locationData.longitude.toString(),
                 "d": _locationData.latitude.toString(),
-                "e": dt.month.toString() +
-                    '/' +
-                    dt.day.toString() +
-                    '/' +
-                    dt.year.toString(),
-                "f": dt.hour.toString() +
-                    ':' +
-                    dt.minute.toString() +
-                    ':' +
-                    dt.second.toString()
+                "e": '${dt.month}/${dt.day}/${dt.year}',
+                "f": '${dt.hour}:${dt.minute}:${dt.second}'
               });
         });
 
@@ -197,14 +184,14 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => NavDrawer(),
+            builder: (context) => const NavDrawer(),
           ),
         );
       } else {
         count = count + 1;
         if (count > 4) {
           await connection.query(
-              "update victima set login='false' where id_victima = '$id_victima'");
+              "update victima set login='false' where id_victima = '$idVictima'");
           _showAlertDialog();
           await connection.close();
         }

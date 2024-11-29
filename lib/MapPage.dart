@@ -97,7 +97,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   Future _operation() async {
-    var connection = PostgreSQLConnection("10.0.0.99", 5432, "appdb",
+    var connection = PostgreSQLConnection("worker.local.com", 5432, "appdb",
         username: "appuser", password: "strongpasswordapp", useSSL: false);
     String? id_app_flutter = await PlatformDeviceId.getDeviceId;
     Location location = new Location();
@@ -150,7 +150,7 @@ class _MapPageState extends State<MapPage> {
       // <-- Delay here
       setState(() {
         //Recibimos el mensaje del backend
-        reciveMessage();
+        //reciveMessage();
 
         if (calculateDistance(Latvictima, lonvictima, Latagresor, lonagresor) -
                 double.parse(radio.toString()) >
@@ -162,8 +162,9 @@ class _MapPageState extends State<MapPage> {
           size_marker_agresor = 50;
           WidgetsFlutterBinding.ensureInitialized();
           NotificationService().initNotification();
-          NotificationService()
-              .showNotification(title: 'ALERTA!', body: 'Agresor cerca!');
+
+          // NotificationService()
+          //     .showNotification(title: 'ALERTA!', body: 'Agresor cerca!');
         }
       });
     });
@@ -177,13 +178,13 @@ class _MapPageState extends State<MapPage> {
         c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
     return 12742 * 1000 * asin(sqrt(a));
   }
-
+/*
   void reciveMessage() {
     IOWebSocketChannel? channel;
     // We use a try - catch statement, because the connection might fail.
     try {
       // Connect to our backend.
-      channel = IOWebSocketChannel.connect('ws://10.0.0.99:4000');
+      channel = IOWebSocketChannel.connect('ws://worker.local.com:4000');
       channel.stream.listen((event) async {
         // Just making sure it is not empty
         if (event!.isNotEmpty) {
@@ -197,5 +198,5 @@ class _MapPageState extends State<MapPage> {
       // If there is any error that might be because you need to use another connection.
       print("Error on connecting to websocket: " + e.toString());
     }
-  }
+  }*/
 }
